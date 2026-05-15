@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}Find Talent — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+  <div class="page-header">
+    <h1>Find Talent</h1>
+    <p>Browse {{ students | length }} skilled students ready to work</p>
+  </div>
+
+  <!-- FILTERS -->
+  <form method="GET" action="/students">
+    <div class="search-bar">
+      <input class="form-control" name="q" placeholder="🔍 Search by name or skill..." value="{{ search_query }}"/>
+      <select class="form-control" name="skill" onchange="this.form.submit()">
+        <option value="all" {% if skill_filter=='all' %}selected{% endif %}>All Skills</option>
+        {% for s in skills %}
+        <option value="{{ s }}" {% if skill_filter==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <select class="form-control" name="sort" onchange="this.form.submit()">
+        <option value="rating"     {% if sort_by=='rating' %}selected{% endif %}>Top Rated</option>
+        <option value="price_low"  {% if sort_by=='price_low' %}selected{% endif %}>Price: Low → High</option>
+        <option value="price_high" {% if sort_by=='price_high' %}selected{% endif %}>Price: High → Low</option>
+        <option value="experience" {% if sort_by=='experience' %}selected{% endif %}>Most Experienced</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+
+  {% if students %}
+  <div class="student-grid">
+    {% for s in students %}
+    <div class="student-card">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="student-avatar">{{ s.name[0] }}</div>
+        <div>
+          <div class="s-name">{{ s.name }}</div>
+          <div class="star-rating">
+            {% if s.rating > 0 %}
+              {% if s.rating >= 4.5 %}★★★★★{% elif s.rating >= 4 %}★★★★☆{% else %}★★★☆☆{% endif %} {{ s.rating }}
+            {% else %}
+              <span style="color:var(--muted);">New</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <span class="badge badge-teal">{{ s.skill }}</span>
+      </div>
+
+      <p style="font-size:0.88rem; color:var(--muted); line-height:1.6;">
+        {{ s.bio[:100] if s.bio else "No bio yet." }}{% if s.bio and s.bio|length > 100 %}...{% endif %}
+      </p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.84rem; color:var(--muted);">
+        <span>🕒 {{ s.experience }} yr(s) exp</span>
+        <span>📋 {{ s.jobs_done }} jobs done</span>
+        <span>⏰ {{ s.availability }}h/week</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <div class="s-price">₹{{ s.price }}<span style="font-size:0.78rem; color:var(--muted); font-weight:400;">/task</span></div>
+
+        {% if user and user.role == 'hirer' %}
+          <!-- Hirer: full contact modal -->
+          <button class="btn btn-primary btn-sm"
+                  onclick="openContactModal('{{ s.name }}', '{{ s.email }}', '{{ s.skill }}', {{ s.price }}, '{{ (s.bio or '') | replace("'", "") | truncate(80, True, "") }}', {{ s.availability }})">
+            Contact →
+          </button>
+        {% elif user and user.role == 'student' %}
+          <!-- Student: direct email link -->
+          <a href="mailto:{{ s.email }}" class="btn btn-ghost btn-sm">✉️ Email</a>
+        {% else %}
+          <!-- Not logged in: direct email link still works -->
+          <a href="mailto:{{ s.email }}" class="btn btn-ghost btn-sm">✉️ Email</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">👤</div>
+      <h3>No students found</h3>
+      <p>Try a different skill or search term.</p>
+      <a href="/students" class="btn btn-outline mt-2">Clear Filters</a>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- ─── CONTACT MODAL (only for hirers) ─── -->
+<div id="contact-modal" style="
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center;">
+
+  <div style="
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:32px; max-width:460px; width:92%;
+    position:relative; box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+
+    <button onclick="closeContactModal()" style="
+      position:absolute; top:14px; right:14px;
+      background:var(--surface2); border:1px solid var(--border);
+      color:var(--muted); border-radius:6px; padding:4px 10px;
+      cursor:pointer; font-size:1rem; line-height:1;">✕</button>
+
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+      <div id="modal-avatar" style="
+        width:48px; height:48px; border-radius:50%;
+        background:linear-gradient(135deg,var(--teal),var(--teal-dark));
+        display:flex; align-items:center; justify-content:center;
+        font-size:1.3rem; font-weight:800; color:#0d1117; font-family:var(--font-head);"></div>
+      <div>
+        <h2 style="font-family:var(--font-head); font-size:1.2rem; margin-bottom:4px;" id="modal-name">—</h2>
+        <span id="modal-skill" style="
+          font-size:0.78rem; background:rgba(45,212,191,0.1); color:var(--teal);
+          border:1px solid rgba(45,212,191,0.4); border-radius:20px; padding:2px 10px;"></span>
+      </div>
+    </div>
+
+    <p id="modal-bio" style="font-size:0.88rem; color:var(--muted); line-height:1.6; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border);"></p>
+
+    <div style="display:grid; gap:12px;">
+
+      <!-- Email box -->
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+        <div style="font-size:0.72rem; color:var(--muted); margin-bottom:6px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">📧 Email Address</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <span id="modal-email" style="font-size:0.9rem; font-weight:600; color:var(--text); word-break:break-all;"></span>
+          <button onclick="copyEmail()" id="copy-btn" style="
+            background:var(--teal); color:#0d1117; border:none; flex-shrink:0;
+            border-radius:6px; padding:5px 12px; font-size:0.78rem;
+            font-weight:700; cursor:pointer;">Copy</button>
+        </div>
+      </div>
+
+      <!-- Rate & availability -->
+      <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+        <div style="font-size:0.72rem; color:var(--muted); margin-bottom:8px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;">💰 Rate &amp; Availability</div>
+        <div style="display:flex; gap:24px;">
+          <div>
+            <div style="font-size:1.2rem; font-weight:800; color:var(--teal); font-family:var(--font-head);" id="modal-price"></div>
+            <div style="font-size:0.76rem; color:var(--muted);">per task</div>
+          </div>
+          <div>
+            <div style="font-size:1.2rem; font-weight:800; color:var(--text); font-family:var(--font-head);" id="modal-avail"></div>
+            <div style="font-size:0.76rem; color:var(--muted);">hours/week available</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to hire -->
+      <div style="background:rgba(45,212,191,0.05); border:1px solid rgba(45,212,191,0.18); border-radius:10px; padding:14px;">
+        <div style="font-size:0.72rem; color:var(--teal); margin-bottom:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">💡 How to Hire</div>
+        <ol style="font-size:0.85rem; color:var(--muted); line-height:2; padding-left:18px; margin:0;">
+          <li>Email them using the address above</li>
+          <li>Briefly describe your project &amp; budget</li>
+          <li>Or <a href="/post_gig" style="color:var(--teal);">post a gig</a> so they can apply to you</li>
+        </ol>
+      </div>
+
+      <a id="modal-mailto" href="#" class="btn btn-primary" style="justify-content:center;">
+        ✉️ Open Email App
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ── Open contact modal with student details ──
+  function openContactModal(name, email, skill, price, bio, availability) {
+    document.getElementById('modal-avatar').textContent  = name[0];
+    document.getElementById('modal-name').textContent    = name;
+    document.getElementById('modal-skill').textContent   = skill;
+    document.getElementById('modal-bio').textContent     = bio || 'No bio provided.';
+    document.getElementById('modal-email').textContent   = email;
+    document.getElementById('modal-price').textContent   = '₹' + Number(price).toLocaleString('en-IN');
+    document.getElementById('modal-avail').textContent   = availability + 'h';
+
+    const subject = encodeURIComponent('Project Inquiry — MicroEarnHub');
+    const body    = encodeURIComponent(
+      `Hi ${name},\n\nI found your profile on MicroEarnHub and would love to discuss a project with you.\n\n[Describe your project here]\n\nLooking forward to connecting!\n`
+    );
+    document.getElementById('modal-mailto').href = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    document.getElementById('contact-modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ── Close the modal ──
+  function closeContactModal() {
+    document.getElementById('contact-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // ── Copy email to clipboard ──
+  function copyEmail() {
+    const email = document.getElementById('modal-email').textContent;
+    navigator.clipboard.writeText(email).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '✓ Copied!';
+      btn.style.background = 'var(--success)';
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.style.background = 'var(--teal)';
+      }, 2000);
+    });
+  }
+
+  // ── Close when clicking the backdrop ──
+  document.getElementById('contact-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeContactModal();
+  });
+</script>
+{% endblock %}

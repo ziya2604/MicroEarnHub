@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+{% block title %}AI Tools — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+  <div class="page-header">
+    <h1>⚡ AI-Powered Tools</h1>
+    <p>Smart prediction models to help students price their skills and hirers find the right talent — instantly.</p>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- ─── TOOL 1: PAY PREDICTION ─── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">💰</div>
+        <div>
+          <h3>Pay Prediction</h3>
+          <p class="tool-desc">Enter your profile details below — this model estimates how much you could earn per month on MicroEarnHub.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Years of Experience
+          <span class="form-hint">How many years have you been practising this skill?</span>
+        </label>
+        <input class="form-control" id="pp-exp" type="number" value="1" min="0" max="10" step="0.5"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Availability (hrs/week)
+            <span class="form-hint">Free hours per week for freelance work</span>
+          </label>
+          <input class="form-control" id="pp-avail" type="number" value="15" min="1" max="60"/>
+        </div>
+        <div class="form-group">
+          <label>Your Price per Task (₹)
+            <span class="form-hint">What you charge for one project</span>
+          </label>
+          <input class="form-control" id="pp-price" type="number" value="1000" min="100"/>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" style="justify-content:center;" onclick="predictPay(this)">
+        Predict Earnings
+      </button>
+
+      <!-- Result box — hidden until button is clicked -->
+      <div class="result-box" id="pp-result">
+        <div class="result-label">Estimated Monthly Earning</div>
+        <div class="result-big" id="pp-earning">—</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:14px; font-size:0.85rem;">
+          <div>
+            <div class="result-label">Gigs/Month</div>
+            <div style="font-weight:700; color:var(--text);" id="pp-gigs">—</div>
+          </div>
+          <div>
+            <div class="result-label">Hourly Rate</div>
+            <div style="font-weight:700; color:var(--text);" id="pp-hourly">—</div>
+          </div>
+          <div>
+            <div class="result-label">Annual Estimate</div>
+            <div style="font-weight:700; color:var(--text);" id="pp-annual">—</div>
+          </div>
+        </div>
+        <p class="result-note">💡 These are estimates based on average student data. Actual earnings depend on gig quality and client demand.</p>
+      </div>
+    </div>
+
+
+    <!-- ─── TOOL 2: PRICE SUGGESTION ─── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">🏷️</div>
+        <div>
+          <h3>Price Suggestion</h3>
+          <p class="tool-desc">Not sure what to charge? This model recommends a fair price range based on your skill, experience, and market demand.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Your Skill</label>
+        <select class="form-control" id="ps-skill">
+          {% for s in skills %}<option>{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Experience (years)</label>
+          <input class="form-control" id="ps-exp" type="number" value="1" min="0" max="10" step="0.5"/>
+        </div>
+        <div class="form-group">
+          <label>Availability (hrs/week)</label>
+          <input class="form-control" id="ps-avail" type="number" value="15" min="1" max="60"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Have you been paid for work before?
+          <span class="form-hint">This affects how much clients are willing to pay you</span>
+        </label>
+        <select class="form-control" id="ps-earned">
+          <option value="no">No – I'm just starting out</option>
+          <option value="yes">Yes – I've completed paid work before</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary w-full" style="justify-content:center;" onclick="suggestPrice(this)">
+        Get Price Suggestion
+      </button>
+
+      <div class="result-box" id="ps-result">
+        <div class="result-label">Suggested Price per Task</div>
+        <div class="result-big" id="ps-price">—</div>
+        <div style="font-size:0.88rem; color:var(--muted); margin-top:12px;">
+          Market range for your profile:
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:6px;">
+          <div style="text-align:center;">
+            <div style="font-size:0.78rem; color:var(--muted);">Minimum</div>
+            <div style="font-weight:700; color:var(--text); font-size:1rem;" id="ps-low">—</div>
+          </div>
+          <div style="flex:1; height:4px; background:linear-gradient(to right, var(--border), var(--teal), var(--border)); border-radius:2px;"></div>
+          <div style="text-align:center;">
+            <div style="font-size:0.78rem; color:var(--muted);">Maximum</div>
+            <div style="font-weight:700; color:var(--text); font-size:1rem;" id="ps-high">—</div>
+          </div>
+        </div>
+        <p class="result-note">💡 Start near the minimum if you're new. Raise your rate after your first 3-5 completed jobs.</p>
+      </div>
+    </div>
+
+
+    <!-- ─── TOOL 3: HIRING PREDICTION ─── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">🤝</div>
+        <div>
+          <h3>Hiring Prediction</h3>
+          <p class="tool-desc">Wondering if a hirer is likely to pick you? Enter your profile and get a hire probability score with a breakdown of key factors.</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Experience (years)</label>
+          <input class="form-control" id="hp-exp" type="number" value="2" min="0" max="10" step="0.5"/>
+        </div>
+        <div class="form-group">
+          <label>Price per Task (₹)</label>
+          <input class="form-control" id="hp-price" type="number" value="1000" min="100"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Platform Enthusiasm Score (0 – 10)
+          <span class="form-hint">How active & engaged are you? 0 = never logged in, 10 = very active</span>
+        </label>
+        <div style="display:flex; align-items:center; gap:14px; margin-top:8px;">
+          <input class="form-control" type="range" id="hp-adoption" min="0" max="10" step="0.5" value="6"
+                 style="flex:1; padding:0;" oninput="document.getElementById('hp-adop-val').textContent = this.value"/>
+          <div style="
+            min-width:48px; text-align:center; font-weight:800; font-size:1.1rem;
+            color:var(--teal); font-family:var(--font-head);">
+            <span id="hp-adop-val">6</span><span style="font-size:0.7rem; color:var(--muted);">/10</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" style="justify-content:center;" onclick="predictHiring(this)">
+        Check My Hirability
+      </button>
+
+      <div class="result-box" id="hp-result">
+        <div style="font-size:1.25rem; font-weight:800; font-family:var(--font-head); margin-bottom:10px;" id="hp-verdict">—</div>
+        <div class="prob-bar" style="margin-bottom:6px;">
+          <div class="prob-fill" id="hp-bar" style="width:0%; transition:width 0.6s ease;"></div>
+        </div>
+        <div style="font-size:0.84rem; color:var(--muted); margin-bottom:14px;" id="hp-prob-lbl">—</div>
+
+        <div style="font-size:0.78rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Score Breakdown</div>
+        <div id="hp-factors"></div>
+        <p class="result-note" id="hp-tip"></p>
+      </div>
+    </div>
+
+
+    <!-- ─── TOOL 4: RECOMMENDATION ─── -->
+    <div class="tool-card">
+      <div class="tool-header">
+        <div class="tool-icon">🔍</div>
+        <div>
+          <h3>Talent Recommendation</h3>
+          <p class="tool-desc">Looking to hire? Enter your requirements and this model finds the top 5 best-matched students using similarity scoring.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Skill You Need</label>
+        <select class="form-control" id="rec-skill">
+          {% for s in skills %}<option>{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Experience Needed (years)</label>
+          <input class="form-control" id="rec-exp" type="number" value="2" min="0" max="10" step="0.5"/>
+        </div>
+        <div class="form-group">
+          <label>Your Budget (₹/task)</label>
+          <input class="form-control" id="rec-budget" type="number" value="1000" min="100"/>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" style="justify-content:center;" onclick="recommend(this)">
+        Find Best Matches
+      </button>
+
+      <div class="result-box" id="rec-result">
+        <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">
+          Top matches sorted by similarity to your requirements:
+        </p>
+        <div id="rec-cards"></div>
+      </div>
+    </div>
+
+  </div><!-- end tools-grid -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+  // ── HELPER: Show loading state on button ──
+  function setLoading(btn, loading) {
+    if (loading) {
+      btn.dataset.originalText = btn.textContent;
+      btn.textContent = '⏳ Calculating...';
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+    } else {
+      btn.textContent = btn.dataset.originalText || btn.textContent;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  // ── HELPER: Show error in result box ──
+  function showError(boxId, message) {
+    const box = document.getElementById(boxId);
+    box.className = 'result-box show danger';
+    box.innerHTML = `<p style="color:var(--danger);">❌ ${message}</p>`;
+  }
+
+
+  // ── TOOL 1: PAY PREDICTION ──
+  async function predictPay(btn) {
+    const experience   = parseFloat(document.getElementById('pp-exp').value);
+    const availability = parseFloat(document.getElementById('pp-avail').value);
+    const price        = parseFloat(document.getElementById('pp-price').value);
+
+    // Validate inputs
+    if (isNaN(experience) || isNaN(availability) || isNaN(price)) {
+      alert('Please fill in all fields with valid numbers.');
+      return;
+    }
+
+    setLoading(btn, true);
+
+    try {
+      const res = await fetch('/api/predict_pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ experience, availability, price })
+      });
+      const d = await res.json();
+
+      // Update result fields
+      document.getElementById('pp-earning').textContent = '₹' + d.monthly_earning.toLocaleString('en-IN');
+      document.getElementById('pp-gigs').textContent    = d.gigs_estimate + ' gigs';
+      document.getElementById('pp-hourly').textContent  = '₹' + d.hourly_rate.toLocaleString('en-IN');
+      document.getElementById('pp-annual').textContent  = '₹' + d.annual_estimate.toLocaleString('en-IN');
+
+      // Show the result box with animation
+      const box = document.getElementById('pp-result');
+      box.className = 'result-box show info';
+    } catch (err) {
+      showError('pp-result', 'Something went wrong. Please try again.');
+    }
+
+    setLoading(btn, false);
+  }
+
+
+  // ── TOOL 2: PRICE SUGGESTION ──
+  async function suggestPrice(btn) {
+    const skill        = document.getElementById('ps-skill').value;
+    const experience   = parseFloat(document.getElementById('ps-exp').value);
+    const availability = parseFloat(document.getElementById('ps-avail').value);
+    const has_earned   = document.getElementById('ps-earned').value;
+
+    if (isNaN(experience) || isNaN(availability)) {
+      alert('Please fill in all fields with valid numbers.');
+      return;
+    }
+
+    setLoading(btn, true);
+
+    try {
+      const res = await fetch('/api/suggest_price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill, experience, availability, has_earned })
+      });
+      const d = await res.json();
+
+      document.getElementById('ps-price').textContent = '₹' + d.suggested.toLocaleString('en-IN');
+      document.getElementById('ps-low').textContent   = '₹' + d.low.toLocaleString('en-IN');
+      document.getElementById('ps-high').textContent  = '₹' + d.high.toLocaleString('en-IN');
+
+      const box = document.getElementById('ps-result');
+      box.className = 'result-box show info';
+    } catch (err) {
+      showError('ps-result', 'Something went wrong. Please try again.');
+    }
+
+    setLoading(btn, false);
+  }
+
+
+  // ── TOOL 3: HIRING PREDICTION ──
+  async function predictHiring(btn) {
+    const experience     = parseFloat(document.getElementById('hp-exp').value);
+    const price          = parseFloat(document.getElementById('hp-price').value);
+    const adoption_score = parseFloat(document.getElementById('hp-adoption').value);
+
+    if (isNaN(experience) || isNaN(price)) {
+      alert('Please fill in all fields with valid numbers.');
+      return;
+    }
+
+    setLoading(btn, true);
+
+    try {
+      const res = await fetch('/api/predict_hiring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ experience, price, adoption_score })
+      });
+      const d = await res.json();
+
+      const box = document.getElementById('hp-result');
+      const isPositive = d.label === 'positive';
+
+      box.className = 'result-box show ' + (isPositive ? 'success' : 'danger');
+
+      document.getElementById('hp-verdict').textContent  = (isPositive ? '✅ ' : '❌ ') + d.result;
+      document.getElementById('hp-prob-lbl').textContent = 'Hire probability: ' + d.probability + '%';
+      document.getElementById('hp-bar').style.width      = d.probability + '%';
+      document.getElementById('hp-bar').style.background = isPositive ? 'var(--success)' : 'var(--danger)';
+
+      // Build factor breakdown table
+      let factorHtml = '';
+      d.factors.forEach(f => {
+        factorHtml += `
+          <div class="factor-row">
+            <span>${f[0]}</span>
+            <span style="color:var(--muted)">${f[1]}</span>
+            <span style="font-weight:700; color:var(--teal)">${f[2]}</span>
+          </div>`;
+      });
+      document.getElementById('hp-factors').innerHTML = factorHtml;
+
+      // Show actionable tip based on result
+      const tip = document.getElementById('hp-tip');
+      if (!isPositive) {
+        tip.textContent = '💡 Tip: Lower your price or increase your activity score to improve your chances.';
+        tip.style.display = 'block';
+      } else {
+        tip.textContent = '🚀 Great profile! Keep it up and apply to matching gigs.';
+        tip.style.display = 'block';
+      }
+    } catch (err) {
+      showError('hp-result', 'Something went wrong. Please try again.');
+    }
+
+    setLoading(btn, false);
+  }
+
+
+  // ── TOOL 4: RECOMMENDATION ──
+  async function recommend(btn) {
+    const skill      = document.getElementById('rec-skill').value;
+    const experience = parseFloat(document.getElementById('rec-exp').value);
+    const budget     = parseFloat(document.getElementById('rec-budget').value);
+
+    if (isNaN(experience) || isNaN(budget)) {
+      alert('Please fill in all fields with valid numbers.');
+      return;
+    }
+
+    setLoading(btn, true);
+
+    try {
+      const res = await fetch('/api/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skill, experience, budget })
+      });
+      const d = await res.json();
+
+      let html = '';
+      d.recommendations.forEach((r, i) => {
+        // Build star display
+        const stars = r.rating >= 4.5 ? '★★★★★'
+                    : r.rating >= 4   ? '★★★★☆'
+                    : r.rating > 0    ? '★★★☆☆' : '';
+        const ratingDisplay = r.rating > 0 ? `${stars} ${r.rating}` : 'New';
+
+        // Budget match indicator
+        const priceDiff = Math.abs(r.price - budget);
+        const matchLabel = priceDiff <= 200 ? '✅ Budget Match'
+                         : r.price < budget  ? '✅ Under Budget'
+                         : '⚠️ Over Budget';
+
+        html += `
+          <div style="
+            padding:14px; border:1px solid var(--border); border-radius:10px;
+            margin-bottom:10px; background:var(--surface2);
+            transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--teal)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+              <div>
+                <strong style="font-family:var(--font-head); font-size:0.95rem;">${i + 1}. ${r.name}</strong>
+                <div style="font-size:0.78rem; color:var(--muted); margin-top:2px;">${ratingDisplay}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="color:var(--teal); font-weight:800; font-family:var(--font-head);">₹${r.price.toLocaleString('en-IN')}</div>
+                <div style="font-size:0.72rem; color:var(--muted);">${matchLabel}</div>
+              </div>
+            </div>
+            <span style="
+              font-size:0.76rem; background:rgba(45,212,191,0.1); color:var(--teal);
+              border:1px solid rgba(45,212,191,0.3); border-radius:12px; padding:2px 8px;">${r.skill}</span>
+            <div style="font-size:0.82rem; color:var(--muted); margin-top:8px;">
+              🕒 ${r.experience} yr(s) &nbsp;·&nbsp; ✅ ${r.jobs_done} jobs done
+            </div>
+            <div style="font-size:0.82rem; color:var(--muted); margin-top:4px;">${r.bio || ''}</div>
+          </div>`;
+      });
+
+      if (!d.recommendations.length) {
+        html = '<p style="color:var(--muted); font-size:0.88rem;">No matches found. Try adjusting your requirements.</p>';
+      }
+
+      document.getElementById('rec-cards').innerHTML = html;
+      const box = document.getElementById('rec-result');
+      box.className = 'result-box show info';
+    } catch (err) {
+      showError('rec-result', 'Something went wrong. Please try again.');
+    }
+
+    setLoading(btn, false);
+  }
+
+</script>
+{% endblock %}

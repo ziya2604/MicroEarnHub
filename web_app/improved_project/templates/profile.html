@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}My Profile — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+  <div style="max-width:720px; margin:0 auto;">
+
+    <div class="page-header">
+      <h1>My Profile</h1>
+      <p>Update your information to attract the right opportunities.</p>
+    </div>
+
+    <!-- Profile Header Card -->
+    <div class="profile-header mb-3">
+      <div class="profile-avatar">{{ user.name[0] }}</div>
+      <div>
+        <h2 style="font-family:var(--font-head); font-size:1.4rem; font-weight:800;">{{ user.name }}</h2>
+        <p style="color:var(--muted); font-size:0.88rem;">{{ user.email }} &nbsp;·&nbsp; Joined {{ user.joined }}</p>
+        {% if user.role == 'student' %}
+        <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+          <span class="badge badge-teal">{{ user.skill }}</span>
+          <span class="stat-chip"><strong>{{ user.rating }}</strong> rating</span>
+          <span class="stat-chip"><strong>{{ user.jobs_done }}</strong> jobs done</span>
+        </div>
+        {% else %}
+        <span class="badge badge-gray mt-1">Hirer · {{ user.org }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="card">
+      <h3 style="font-family:var(--font-head); font-size:1.05rem; margin-bottom:20px;">Edit Profile</h3>
+      <form method="POST" action="/profile">
+
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea class="form-control" name="bio" rows="3" placeholder="Tell others about yourself...">{{ user.bio or '' }}</textarea>
+        </div>
+
+        {% if user.role == 'student' %}
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary Skill</label>
+            <select class="form-control" name="skill">
+              {% for s in skills %}
+              <option {% if s == user.skill %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience (years)</label>
+            <input class="form-control" type="number" name="experience" value="{{ user.experience }}" min="0" max="10" step="0.5"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price per Task (₹)</label>
+            <input class="form-control" type="number" name="price" value="{{ user.price }}" min="100"/>
+          </div>
+          <div class="form-group">
+            <label>Availability (hrs/week)</label>
+            <input class="form-control" type="number" name="availability" value="{{ user.availability }}" min="1" max="60"/>
+          </div>
+        </div>
+        {% else %}
+        <div class="form-group">
+          <label>Organization</label>
+          <input class="form-control" name="org" value="{{ user.org or '' }}" placeholder="e.g. IEEE WIE MUJ"/>
+        </div>
+        {% endif %}
+
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    {% if user.role == 'student' %}
+    <div class="card mt-3">
+      <div class="flex-between">
+        <h3 style="font-family:var(--font-head); font-size:1.05rem;">Check Your Potential</h3>
+        <a href="/tools" class="btn btn-outline btn-sm">Open AI Tools →</a>
+      </div>
+      <p style="color:var(--muted); font-size:0.88rem; margin-top:8px;">
+        Use the Pay Predictor to estimate monthly earnings with your current profile,
+        or get a price suggestion tailored to your skill.
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

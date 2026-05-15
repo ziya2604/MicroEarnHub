@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Post a Gig — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+  <div style="max-width:640px; margin:0 auto;">
+
+    <div class="page-header">
+      <h1>Post a Gig</h1>
+      <p>Describe what you need and receive applications from skilled students.</p>
+    </div>
+
+    <div class="card">
+      <form method="POST" action="/post_gig">
+
+        <div class="form-group">
+          <label>Gig Title</label>
+          <input class="form-control" name="title" placeholder="e.g. Build a Club Event Website" required/>
+          <span class="form-hint">Keep it short and specific.</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Skill Required</label>
+            <select class="form-control" name="skill">
+              {% for s in skills %}<option>{{ s }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Budget (₹)</label>
+            <input class="form-control" type="number" name="budget" value="1000" min="100" required/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deadline</label>
+          <select class="form-control" name="deadline">
+            <option>1 day</option>
+            <option>3 days</option>
+            <option>1 week</option>
+            <option>2 weeks</option>
+            <option>1 month</option>
+            <option>ongoing</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" name="description" rows="5"
+            placeholder="Describe the work in detail — what needs to be done, what deliverables you expect, any specific requirements..." required></textarea>
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:8px;">
+          <a href="/dashboard" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary">Post Gig →</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

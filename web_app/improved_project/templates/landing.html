@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}MicroEarnHub — Campus Skill Marketplace{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+  <h1>The Campus Marketplace for <em>Real Skills</em></h1>
+  <p>Students earn by doing. Hirers get work done fast. Powered by ML-driven pricing and matching.</p>
+  <div class="hero-btns">
+    <a href="/register" class="btn btn-primary btn-lg">Start Earning →</a>
+    <a href="/gigs" class="btn btn-outline btn-lg">Browse Gigs</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">{{ stats.students }}+</div>
+      <div class="lbl">Skilled Students</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">{{ stats.gigs }}+</div>
+      <div class="lbl">Active Gigs</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">₹500–₹4000</div>
+      <div class="lbl">Typical Earnings</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">15+</div>
+      <div class="lbl">Skill Categories</div>
+    </div>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="container">
+    <h2>Everything you need in one place</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">🎯</div>
+        <h3>Smart Gig Matching</h3>
+        <p>Our KNN-based recommendation engine connects hirers to the most suitable students based on skill, experience, and price fit.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">💰</div>
+        <h3>AI Pay Predictor</h3>
+        <p>Know your earning potential before you start. Our Random Forest model estimates your monthly income based on your profile.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏷️</div>
+        <h3>Smart Pricing</h3>
+        <p>Not sure what to charge? Get a data-driven price suggestion tailored to your skill, experience, and market demand.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🤝</div>
+        <h3>Hiring Predictor</h3>
+        <p>Students can check their hirability score before applying. Hirers see who's most likely to be a great fit.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔍</div>
+        <h3>Talent Discovery</h3>
+        <p>Browse verified student profiles filtered by skill, rating, price range, and availability. Find the right person fast.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>Earnings Dashboard</h3>
+        <p>Track bids, applications, active gigs, and your performance metrics — all in one clean dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section style="padding: 60px 24px; text-align: center; border-top: 1px solid var(--border);">
+  <div class="container">
+    <h2 style="font-family:var(--font-head); font-size:1.8rem; margin-bottom:12px;">Ready to get started?</h2>
+    <p style="color:var(--muted); margin-bottom:28px;">Join as a student to find work, or as a hirer to post gigs.</p>
+    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a href="/register" class="btn btn-primary btn-lg">I'm a Student →</a>
+      <a href="/register" class="btn btn-outline btn-lg">I'm Hiring →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

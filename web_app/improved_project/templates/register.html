@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Register — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <h2>Create Account</h2>
+    <p class="subtitle">Join the campus skill marketplace</p>
+
+    <!-- Role tabs -->
+    <div class="role-tabs" id="roleTabs">
+      <button class="role-tab active" onclick="setRole('student', this)">🎓 I'm a Student</button>
+      <button class="role-tab" onclick="setRole('hirer', this)">💼 I'm Hiring</button>
+    </div>
+
+    <form method="POST" action="/register">
+      <input type="hidden" name="role" id="roleInput" value="student"/>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input class="form-control" name="name" placeholder="Aarav Sharma" required/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input class="form-control" type="email" name="email" placeholder="you@muj.edu" required/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-control" type="password" name="password" placeholder="Min 6 characters" required/>
+      </div>
+
+      <!-- Student-only fields -->
+      <div id="studentFields">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary Skill</label>
+            <select class="form-control" name="skill">
+              {% for s in skills %}
+              <option>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Experience (years)</label>
+            <input class="form-control" type="number" name="experience" value="1" min="0" max="10" step="0.5"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price per Task (₹)</label>
+            <input class="form-control" type="number" name="price" value="500" min="100"/>
+            <span class="form-hint">What you typically charge</span>
+          </div>
+          <div class="form-group">
+            <label>Availability (hrs/week)</label>
+            <input class="form-control" type="number" name="availability" value="10" min="1" max="60"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Short Bio</label>
+          <textarea class="form-control" name="bio" placeholder="Tell hirers a bit about yourself and your work..."></textarea>
+        </div>
+      </div>
+
+      <!-- Hirer-only fields -->
+      <div id="hirerFields" class="hidden">
+        <div class="form-group">
+          <label>Organization / Company</label>
+          <input class="form-control" name="org" placeholder="e.g. IEEE WIE MUJ, Individual"/>
+        </div>
+        <div class="form-group">
+          <label>About (optional)</label>
+          <textarea class="form-control" name="bio" placeholder="What kind of work are you looking to get done?"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full mt-2" style="justify-content:center;">Create Account →</button>
+    </form>
+
+    <div class="divider"><span>Already have an account?</span></div>
+    <a href="/login" class="btn btn-ghost w-full" style="justify-content:center;">Log In</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function setRole(role, btn) {
+    document.getElementById('roleInput').value = role;
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('studentFields').classList.toggle('hidden', role !== 'student');
+    document.getElementById('hirerFields').classList.toggle('hidden',  role !== 'hirer');
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}MicroEarnHub{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="nav-brand">Micro<span>Earn</span>Hub</a>
+  <div class="nav-links">
+    <a href="/gigs" {% if request.path == '/gigs' %}class="active"{% endif %}>Browse Gigs</a>
+    <a href="/students" {% if request.path == '/students' %}class="active"{% endif %}>Find Talent</a>
+    <a href="/tools" {% if request.path == '/tools' %}class="active"{% endif %}>AI Tools</a>
+    {% if session.email %}
+      <a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}>Dashboard</a>
+      <a href="/profile" {% if request.path == '/profile' %}class="active"{% endif %}>Profile</a>
+      <a href="/logout" class="btn-nav btn">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+      <a href="/register" class="btn-nav btn">Get Started</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<footer>
+  <p>MicroEarnHub &mdash; Student Skill Marketplace &mdash; Manipal University Jaipur &copy; 2024</p>
+</footer>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

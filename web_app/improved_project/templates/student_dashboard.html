@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+  <div class="page-header flex-between">
+    <div>
+      <h1>👋 Hey, {{ user.name.split()[0] }}</h1>
+      <p>Here's what's happening in your marketplace today.</p>
+    </div>
+    <a href="/gigs" class="btn btn-primary">Find Gigs →</a>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row mb-3">
+    <div class="stat-box">
+      <div class="stat-icon">💼</div>
+      <div>
+        <div class="stat-val">{{ my_bids | length }}</div>
+        <div class="stat-lbl">Applications Sent</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">⭐</div>
+      <div>
+        <div class="stat-val">{{ user.rating }}</div>
+        <div class="stat-lbl">Your Rating</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-val">{{ user.jobs_done }}</div>
+        <div class="stat-lbl">Jobs Completed</div>
+      </div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon">🕒</div>
+      <div>
+        <div class="stat-val">{{ user.availability }}h</div>
+        <div class="stat-lbl">Hrs/Week Available</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+
+    <!-- Profile snapshot -->
+    <div class="card mb-3">
+      <div class="flex-between mb-2">
+        <h3 style="font-family:var(--font-head);">My Profile</h3>
+        <a href="/profile" class="btn btn-ghost btn-sm">Edit</a>
+      </div>
+      <p><span class="text-muted">Skill:</span> <strong>{{ user.skill }}</strong></p>
+      <p class="mt-1"><span class="text-muted">Experience:</span> <strong>{{ user.experience }} year(s)</strong></p>
+      <p class="mt-1"><span class="text-muted">Price:</span> <strong class="text-teal">₹{{ user.price }}/task</strong></p>
+      <p class="mt-1" style="font-size:0.88rem; color:var(--muted);">{{ user.bio or "Add a bio to attract more hirers." }}</p>
+      <div class="mt-2">
+        <a href="/tools" class="btn btn-outline btn-sm">💡 Check Earning Potential</a>
+      </div>
+    </div>
+
+    <!-- My Applications -->
+    <div class="card mb-3">
+      <div class="flex-between mb-2">
+        <h3 style="font-family:var(--font-head);">My Applications</h3>
+        <span class="badge badge-gray">{{ my_bids | length }} total</span>
+      </div>
+      {% if my_bids %}
+        {% for bid in my_bids[:5] %}
+        <div style="padding: 10px 0; border-bottom: 1px solid var(--border); font-size:0.88rem;">
+          <div class="flex-between">
+            <strong>{{ bid.gig_title }}</strong>
+            <span class="badge badge-yellow">{{ bid.status }}</span>
+          </div>
+          <p class="text-muted mt-1">Applied {{ bid.applied }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted" style="font-size:0.88rem;">No applications yet. <a href="/gigs">Browse gigs</a> to get started.</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Recommended Gigs -->
+  <h2 style="font-family:var(--font-head); font-size:1.2rem; margin-bottom:16px;">
+    Gigs matching your skill — <span class="text-teal">{{ user.skill }}</span>
+  </h2>
+
+  {% if matching_gigs %}
+  <div class="gig-grid">
+    {% for gig in matching_gigs %}
+    <div class="gig-card">
+      <div>
+        <div class="gig-meta mb-1">
+          <span class="badge badge-teal">{{ gig.skill }}</span>
+          <span class="badge badge-green">Open</span>
+        </div>
+        <h3>{{ gig.title }}</h3>
+        <p class="desc mt-1">{{ gig.description[:100] }}...</p>
+      </div>
+      <div class="gig-footer">
+        <div>
+          <div class="budget">₹{{ gig.budget }}</div>
+          <div style="font-size:0.78rem; color:var(--muted);">⏱ {{ gig.deadline }} · {{ gig.applicants }} applicants</div>
+        </div>
+        {% if gig.id in bid_gig_ids %}
+          <span class="badge badge-green">✓ Applied</span>
+        {% else %}
+          <button class="btn btn-primary btn-sm" onclick="openBidModal({{ gig.id }}, '{{ gig.title }}')">Apply Now</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No matching gigs right now</h3>
+      <p>Check back soon or browse all gigs.</p>
+      <a href="/gigs" class="btn btn-outline mt-2">Browse All Gigs</a>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- BID MODAL -->
+<div class="modal-overlay" id="bidModal">
+  <div class="modal-box">
+    <h3 id="modalGigTitle">Apply for Gig</h3>
+    <p class="modal-sub">Write a short message to the hirer about why you're a great fit.</p>
+    <div class="form-group">
+      <label>Your Message</label>
+      <textarea class="form-control" id="bidMessage" rows="4" placeholder="Hi! I have 2 years of experience in web development and have built similar projects. I can deliver within your deadline..."></textarea>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeBidModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBid()">Send Application</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let currentGigId = null;
+
+  function openBidModal(gigId, title) {
+    currentGigId = gigId;
+    document.getElementById('modalGigTitle').textContent = 'Apply: ' + title;
+    document.getElementById('bidModal').classList.add('show');
+  }
+
+  function closeBidModal() {
+    document.getElementById('bidModal').classList.remove('show');
+    currentGigId = null;
+  }
+
+  async function submitBid() {
+    const msg = document.getElementById('bidMessage').value.trim();
+    if (!msg) { alert('Please write a message.'); return; }
+
+    const res  = await fetch('/apply/' + currentGigId, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    alert(data.msg);
+    if (data.ok) { closeBidModal(); location.reload(); }
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('bidModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBidModal();
+  });
+</script>
+{% endblock %}

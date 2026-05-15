@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Browse Gigs — MicroEarnHub{% endblock %}
+
+{% block content %}
+<div class="container page-wrap">
+
+  <div class="page-header">
+    <h1>Browse Gigs</h1>
+    <p>{{ gigs | length }} open opportunities waiting for you</p>
+  </div>
+
+  <!-- SEARCH & FILTERS -->
+  <form method="GET" action="/gigs">
+    <div class="search-bar">
+      <input class="form-control" name="q" placeholder="🔍 Search gigs..." value="{{ search_query }}"/>
+      <select class="form-control" name="skill" onchange="this.form.submit()">
+        <option value="all" {% if skill_filter=='all' %}selected{% endif %}>All Skills</option>
+        {% for s in skills %}
+        <option value="{{ s }}" {% if skill_filter==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <select class="form-control" name="sort" onchange="this.form.submit()">
+        <option value="newest"     {% if sort_by=='newest' %}selected{% endif %}>Newest First</option>
+        <option value="budget_high"{% if sort_by=='budget_high' %}selected{% endif %}>Budget: High → Low</option>
+        <option value="budget_low" {% if sort_by=='budget_low' %}selected{% endif %}>Budget: Low → High</option>
+      </select>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+  </form>
+
+  {% if gigs %}
+  <div class="gig-grid">
+    {% for gig in gigs %}
+    <div class="gig-card">
+      <div>
+        <div class="gig-meta mb-1">
+          <span class="badge badge-teal">{{ gig.skill }}</span>
+          <span class="badge badge-green">Open</span>
+        </div>
+        <h3>{{ gig.title }}</h3>
+        <p class="desc mt-1">{{ gig.description[:120] }}{% if gig.description|length > 120 %}...{% endif %}</p>
+      </div>
+      <div>
+        <div style="font-size:0.82rem; color:var(--muted); margin-bottom:8px;">
+          🏢 {{ gig.hirer }} &nbsp;·&nbsp; ⏱ {{ gig.deadline }} &nbsp;·&nbsp; 🕒 {{ gig.posted }}
+        </div>
+      </div>
+      <div class="gig-footer">
+        <div>
+          <div class="budget">₹{{ gig.budget }}</div>
+          <div style="font-size:0.78rem; color:var(--muted);">{{ gig.applicants }} applicant(s)</div>
+        </div>
+        {% if user and user.role == 'student' %}
+          {% if gig.id in bid_gig_ids %}
+            <span class="badge badge-green">✓ Applied</span>
+          {% else %}
+            <button class="btn btn-primary btn-sm" onclick="openBidModal({{ gig.id }}, '{{ gig.title }}')">Apply Now</button>
+          {% endif %}
+        {% elif not user %}
+          <a href="/login" class="btn btn-outline btn-sm">Login to Apply</a>
+        {% else %}
+          <span class="text-muted" style="font-size:0.82rem;">Hirer account</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No gigs found</h3>
+      <p>Try a different skill filter or search term.</p>
+      <a href="/gigs" class="btn btn-outline mt-2">Clear Filters</a>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- BID MODAL -->
+<div class="modal-overlay" id="bidModal">
+  <div class="modal-box">
+    <h3 id="modalGigTitle">Apply for Gig</h3>
+    <p class="modal-sub">Write a short note to the hirer about why you're a great fit.</p>
+    <div class="form-group">
+      <label>Your Message</label>
+      <textarea class="form-control" id="bidMessage" rows="4" placeholder="Mention your relevant experience, past work, and why you can deliver..."></textarea>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeBidModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBid()">Send Application</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let currentGigId = null;
+
+  function openBidModal(gigId, title) {
+    currentGigId = gigId;
+    document.getElementById('modalGigTitle').textContent = 'Apply: ' + title;
+    document.getElementById('bidModal').classList.add('show');
+  }
+
+  function closeBidModal() {
+    document.getElementById('bidModal').classList.remove('show');
+  }
+
+  async function submitBid() {
+    const msg = document.getElementById('bidMessage').value.trim();
+    if (!msg) { alert('Please write a message.'); return; }
+    const res  = await fetch('/apply/' + currentGigId, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    const data = await res.json();
+    alert(data.msg);
+    if (data.ok) { closeBidModal(); location.reload(); }
+  }
+
+  document.getElementById('bidModal').addEventListener('click', function(e){
+    if(e.target === this) closeBidModal();
+  });
+</script>
+{% endblock %}
