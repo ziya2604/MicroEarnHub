@@ -1,17 +1,17 @@
-# 🎓 MicroEarnHub — Student Micro-Skill Marketplace + Analytics System
+#  MicroEarnHub — Student Micro-Skill Marketplace + Analytics System
 
 > A student freelance marketplace with AI-powered skill matching, backed by a full Data Warehouse and Data Mining analytics system built on 245 real student survey responses from Manipal University Jaipur.
 
 ---
 
-## 📌 Project Overview
+##  Project Overview
 
 MicroEarn Hub bridges the gap between students who have marketable micro-skills and those who need them — within the same campus community. The project has two integrated components:
 
 | Component | Description |
 |---|---|
-| 🌐 **Web Application** | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
-| 📊 **Analytics System** | Data warehouse + data mining + 5 ML models built on 245 student survey responses |
+|  **Web Application** | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
+|  **Analytics System** | Data warehouse + data mining + 5 ML models built on 245 student survey responses |
 
 **By:** Ziya Parween (23FE10ITE00350) & Aashi Singh (23FE10ITE00073)  
 **Degree:** B.Tech Information Technology — Manipal University Jaipur, 2025–2026  
@@ -19,7 +19,7 @@ MicroEarn Hub bridges the gap between students who have marketable micro-skills 
 
 ---
 
-## 🌐 Part 1 — Web Application (Flask)
+## Part 1 — Web Application (Flask)
 
 A full-stack web app where students can offer skills as freelancers and hirers can post gigs.
 
@@ -44,11 +44,11 @@ Open **http://127.0.0.1:5000** in your browser.
 
 ---
 
-## 📊 Part 2 — Data Warehouse & Data Mining Analytics
+## Part 2 — Data Warehouse & Data Mining Analytics
 
 A complete analytics system built on a Google Form survey of **245 Manipal University Jaipur students** (collected Feb–Mar 2026).
 
-### Dataset
+## Dataset
 | Attribute | Value |
 |---|---|
 | Total Responses | 245 |
@@ -57,7 +57,7 @@ A complete analytics system built on a Google Form survey of **245 Manipal Unive
 | Date Range | 12 Feb 2026 – 02 Mar 2026 |
 | Dataset Completeness | 92.9% |
 
-### 🏗️ Data Warehouse — Star Schema
+## Data Warehouse — Star Schema
 A Star Schema was designed with 1 fact table and 4 dimension tables:
 
 | Table | Type | Description |
@@ -68,12 +68,12 @@ A Star Schema was designed with 1 fact table and 4 dimension tables:
 | `dim_time` | Dimension | Year, month, week, day of week |
 | `dim_platform` | Dimension | Trust, challenges, hiring intent |
 
-### 🔲 OLAP Operations
+## OLAP Operations
 Six OLAP operations performed — Data Cube, Slice, Dice, Roll-Up, Drill-Down, and Pivot.
 
 Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages **Rs. 14,104/month**.
 
-### ⛏️ Data Mining
+## Data Mining
 
 **Association Rule Mining (Apriori)**
 - 49 frequent itemsets and 31 association rules discovered
@@ -106,7 +106,7 @@ Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages 
 | M4: Hiring Likelihood | Binary Classification | Logistic Regression | **76.6% accuracy** |
 | M5: Earning Tier Classifier | 3-class Classification | Random Forest | **89.36% accuracy** |
 
-### 💡 Key Business Insights
+## Key Business Insights
 - **72%** of students are predicted to adopt the platform — strong market viability
 - Experienced Web/App Development students can earn up to **Rs. 24,750/month**
 - All major skills show **supply exceeding demand** — focus should be on matchmaking quality, not supply expansion
@@ -116,7 +116,7 @@ Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages 
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 MicroEarnHub/
@@ -162,7 +162,7 @@ MicroEarnHub/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Web App
 ```bash
