@@ -10,12 +10,10 @@ MicroEarn Hub bridges the gap between students who have marketable micro-skills 
 
 | Component | Description |
 |---|---|
-|  **Web Application** | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
-|  **Analytics System** | Data warehouse + data mining + 5 ML models built on 245 student survey responses |
+|  Web Application | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
+|  Analytics System | Data warehouse + data mining + 5 ML models built on 245 student survey responses |
 
-**By:** Ziya Parween (23FE10ITE00350) & Aashi Singh (23FE10ITE00073)  
-**Degree:** B.Tech Information Technology — Manipal University Jaipur, 2025–2026  
-**Guidance:** Mrs. Shweta Sharma (Analytics) | Mr. Venkatesh G. Shankar (Web App)
+By: Ziya Parween (23FE10ITE00350) & Aashi Singh (23FE10ITE00073)  
 
 ---
 
@@ -40,7 +38,7 @@ cd webapp
 pip install flask
 python app.py
 ```
-Open **http://127.0.0.1:5000** in your browser.
+Open http://127.0.0.1:5000** in your browser.
 
 ---
 
@@ -107,12 +105,12 @@ Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages 
 | M5: Earning Tier Classifier | 3-class Classification | Random Forest | **89.36% accuracy** |
 
 ## Key Business Insights
-- **72%** of students are predicted to adopt the platform — strong market viability
-- Experienced Web/App Development students can earn up to **Rs. 24,750/month**
+- 72% of students are predicted to adopt the platform — strong market viability
+- Experienced Web/App Development students can earn up to Rs. 24,750/month
 - All major skills show **supply exceeding demand** — focus should be on matchmaking quality, not supply expansion
-- **Rs. 539 price gap** between freelancers and hirers requires a negotiation or dynamic pricing feature
-- **3rd Year UG students** are the most active group on both supply and demand sides
-- **Payment security** and client discovery are the top adoption barriers
+- Rs. 539 price gap between freelancers and hirers requires a negotiation or dynamic pricing feature
+- 3rd Year UG students are the most active group on both supply and demand sides
+- Payment security and client discovery are the top adoption barriers
 
 ---
 
