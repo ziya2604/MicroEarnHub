@@ -1,23 +1,23 @@
-#  MicroEarnHub — Student Micro-Skill Marketplace + Analytics System
+# MicroEarnHub — Student Micro-Skill Marketplace + Analytics System
 
-> A student freelance marketplace with AI-powered skill matching, backed by a full Data Warehouse and Data Mining analytics system built on 245 real student survey responses from Manipal University Jaipur.
+> A student freelance marketplace with AI-powered skill matching, backed by a Data Warehouse and Data Mining analytics system built on student survey responses.
 
 ---
 
-##  Project Overview
+## Project Overview
 
 MicroEarn Hub bridges the gap between students who have marketable micro-skills and those who need them — within the same campus community. The project has two integrated components:
 
 | Component | Description |
 |---|---|
-|  Web Application | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
-|  Analytics System | Data warehouse + data mining + 5 ML models built on 245 student survey responses |
+| Web Application | Full-stack Flask app for gig posting, student browsing, and skill recommendations |
+| Analytics and Prediction System | Data warehouse + data mining + ML models built on student survey responses |
 
-By: Ziya Parween (23FE10ITE00350) & Aashi Singh (23FE10ITE00073)  
+By: Ziya Parween (23FE10ITE00350) & Aashi Singh (23FE10ITE00073)
 
 ---
 
-## Part 1 — Web Application (Flask)
+## Part 1 — Web Application
 
 A full-stack web app where students can offer skills as freelancers and hirers can post gigs.
 
@@ -30,7 +30,7 @@ A full-stack web app where students can offer skills as freelancers and hirers c
 - Profile management
 
 ### Tech Stack
-`Python` · `Flask` · `HTML/CSS` · `Jinja2`
+`Python` · `Flask` · `Jinja2` · `HTML/CSS`
 
 ### How to Run
 ```bash
@@ -38,49 +38,47 @@ cd webapp
 pip install flask
 python app.py
 ```
-Open http://127.0.0.1:5000** in your browser.
+Open http://127.0.0.1:5000 in your browser.
 
 ---
 
 ## Part 2 — Data Warehouse & Data Mining Analytics
 
-A complete analytics system built on a Google Form survey of **245 Manipal University Jaipur students** (collected Feb–Mar 2026).
-
-## Dataset
+### Dataset
 | Attribute | Value |
 |---|---|
 | Total Responses | 245 |
-| Raw Columns | 24 |
-| Columns After Feature Engineering | 27 |
-| Date Range | 12 Feb 2026 – 02 Mar 2026 |
-| Dataset Completeness | 92.9% |
+| Real Data | 45 |
+| Synthetic Data | 200 |
+| Schema | Star Schema (1 Fact + 4 Dimensions) |
 
-## Data Warehouse — Star Schema
-A Star Schema was designed with 1 fact table and 4 dimension tables:
+### OLAP Operations
+| Operation | Description |
+|---|---|
+| Data Cube | Academic Level × Experience → Avg Price |
+| Slice | 3rd Year Undergrads |
+| Dice | Exp + Freelancer + Price ≥ ₹1500 |
+| Roll-Up | Dept → Group → Total |
+| Drill-Down | Dept → Skill |
+| Pivot | Experience × Skill → Earning |
 
-| Table | Type | Description |
-|---|---|---|
-| `fact_survey` | Fact | Price, earnings, adoption, hiring metrics |
-| `dim_student` | Dimension | Academic level, department, experience, role |
-| `dim_skill` | Dimension | Primary skill, multi-skill flag, skill count |
-| `dim_time` | Dimension | Year, month, week, day of week |
-| `dim_platform` | Dimension | Trust, challenges, hiring intent |
+### EDA Insights
+| Metric | Value |
+|---|---|
+| Largest Segment | 3rd Year Undergrad (76 students) |
+| Top Skill | Web/App Development |
+| Avg Price | ₹2,082/task |
+| Avg Monthly Earning | ₹12,017 |
+| Adoption Rate | 74% |
 
-## OLAP Operations
-Six OLAP operations performed — Data Cube, Slice, Dice, Roll-Up, Drill-Down, and Pivot.
-
-Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages **Rs. 14,104/month**.
-
-## Data Mining
-
+### Data Mining
 **Association Rule Mining (Apriori)**
-- 49 frequent itemsets and 31 association rules discovered
-- Strongest rule: Students hiring for Data Analysis also need Excel (Lift: **10.21**, Confidence: **100%**)
+- 49 frequent itemsets, 31 association rules
+- Strongest rule: Data Analysis ↔ Excel (Lift: 10.21, Confidence: 100%)
 - Tutoring + Academic Support co-occur with 100% confidence
 
 **K-Means Clustering — 4 Student Segments**
-
-| Cluster | Segment | Avg Price (Rs.) | Avg Hours/Week |
+| Cluster | Segment | Avg Price (₹) | Avg Hours/Week |
 |---|---|---|---|
 | 0 | High-Earner Pro | 2,414 | 13.3 |
 | 1 | Beginner | 2,250 | 15.6 |
@@ -90,38 +88,56 @@ Key finding: CS/IT students average **Rs. 10,048/month**; Data Science averages 
 **Price Gap Analysis**
 | Metric | Value |
 |---|---|
-| Avg Freelancer Rate | Rs. 2,082/task |
-| Avg Hirer Budget | Rs. 1,543/task |
-| Price Gap | **Rs. +539** (freelancers charge more) |
+| Avg Freelancer Rate | ₹2,082/task |
+| Avg Hirer Budget | ₹1,543/task |
+| Price Gap | ₹+539 (freelancers charge more) |
 
-### 🤖 Machine Learning Models (5 Models)
+---
 
-| Model | Task | Best Algorithm | Result |
+## Machine Learning Models
+
+| Model | Task | Algorithm | Result |
 |---|---|---|---|
-| M1: Platform Adoption | Binary Classification | Logistic Regression | **72.3% accuracy** |
-| M2: Price Range Prediction | Multiclass Classification | Random Forest | 34.0% accuracy |
-| M3: Monthly Earning Potential | Regression | Random Forest Regressor | **R² = 1.000, MAE = Rs. 37** |
-| M4: Hiring Likelihood | Binary Classification | Logistic Regression | **76.6% accuracy** |
-| M5: Earning Tier Classifier | 3-class Classification | Random Forest | **89.36% accuracy** |
+| M1: Pay Prediction | Regression | Random Forest (Leakage Fixed) | MAE: ₹6,415 · R²: 0.10 |
+| M2: Income Classification | Binary Classification | Random Forest | Accuracy: 77% |
+| M3: Hiring Prediction | Classification | Logistic Regression | Accuracy: 83% · Precision: 1.00 · Recall: 0.11 |
+| M4: Recommendation System | Similarity-Based | KNN | Distance-based (lower = more similar) |
+
+> Note: M3 recall is low due to class imbalance — improvement planned.
+
+---
 
 ## Key Business Insights
-- 72% of students are predicted to adopt the platform — strong market viability
-- Experienced Web/App Development students can earn up to Rs. 24,750/month
-- All major skills show **supply exceeding demand** — focus should be on matchmaking quality, not supply expansion
-- Rs. 539 price gap between freelancers and hirers requires a negotiation or dynamic pricing feature
-- 3rd Year UG students are the most active group on both supply and demand sides
-- Payment security and client discovery are the top adoption barriers
+1. Majority of students are likely to adopt the platform
+2. Web Development + experience → highest earning potential
+3. 3rd Year UG students are the most active segment
+4. Users frequently act as both freelancers and hirers
+5. Hiring prediction is affected by class imbalance — needs addressing
+6. Price gap of ₹539 between freelancer rates and hirer budgets requires a negotiation or dynamic pricing feature
+
+---
+
+## Full Tech Stack
+| Layer | Tools |
+|---|---|
+| Web Framework | Python, Flask |
+| Frontend | HTML, CSS |
+| Data Processing | pandas, numpy |
+| Visualisation | matplotlib, seaborn, plotly |
+| Machine Learning | scikit-learn, XGBoost |
+| Data Mining | mlxtend (Apriori, TransactionEncoder) |
+| Notebook Environment | Google Colab / Jupyter |
+| Data Source | Google Form Survey — 245 responses |
 
 ---
 
 ## Repository Structure
-
 ```
 MicroEarnHub/
 │
-├── webapp/                        # Flask web application
-│   ├── app.py                     # Main Flask app
-│   ├── templates/                 # HTML pages
+├── webapp/
+│   ├── app.py
+│   ├── templates/
 │   │   ├── landing.html
 │   │   ├── login.html
 │   │   ├── register.html
@@ -136,27 +152,13 @@ MicroEarnHub/
 │       └── css/
 │           └── style.css
 │
-├── data_mining/                   # Jupyter notebook
+├── data_mining/
 │   └── MicroEarnHub_DataMining.ipynb
 │
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
-
----
-
-## 🛠️ Full Tech Stack
-
-| Layer | Tools |
-|---|---|
-| Web Framework | Flask, Jinja2 |
-| Data Processing | pandas, numpy |
-| Visualisation | matplotlib, seaborn, plotly |
-| Machine Learning | scikit-learn, XGBoost |
-| Data Mining | mlxtend (Apriori, TransactionEncoder) |
-| Notebook Environment | Google Colab / Jupyter |
-| Data Source | Google Form Survey — 245 responses |
 
 ---
 
@@ -171,9 +173,8 @@ python app.py
 ```
 
 ### Data Mining Notebook
-Open `data_mining/MicroEarnHub_DataMining.ipynb` in **Google Colab** or **Jupyter Notebook**
+Open `data_mining/MicroEarnHub_DataMining.ipynb` in Google Colab or Jupyter Notebook.
 
-Install dependencies:
 ```bash
 pip install pandas numpy matplotlib seaborn plotly scikit-learn xgboost mlxtend openpyxl
 ```
